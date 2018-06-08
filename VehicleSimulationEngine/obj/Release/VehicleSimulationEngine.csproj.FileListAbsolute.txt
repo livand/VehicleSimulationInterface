@@ -1,0 +1,5 @@
+C:\Users\landerss\source\repos\VehicleSimulationInterface\VehicleSimulationEngine\bin\Release\VehicleSimulationEngine.dll
+C:\Users\landerss\source\repos\VehicleSimulationInterface\VehicleSimulationEngine\bin\Release\VehicleSimulationEngine.pdb
+C:\Users\landerss\source\repos\VehicleSimulationInterface\VehicleSimulationEngine\obj\Release\VehicleSimulationEngine.csproj.CoreCompileInputs.cache
+C:\Users\landerss\source\repos\VehicleSimulationInterface\VehicleSimulationEngine\obj\Release\VehicleSimulationEngine.dll
+C:\Users\landerss\source\repos\VehicleSimulationInterface\VehicleSimulationEngine\obj\Release\VehicleSimulationEngine.pdb
