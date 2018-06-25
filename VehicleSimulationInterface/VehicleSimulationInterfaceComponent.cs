@@ -35,7 +35,8 @@ namespace VehicleSimulationInterface
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddNumberParameter("Number", "N", "First number to calculate", GH_ParamAccess.list);
-            pManager.AddNumberParameter("Number", "N2", "Second number to calculate", GH_ParamAccess.item);           
+            pManager.AddNumberParameter("Number", "N2", "Second number to calculate", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Time", "t", "Time in seconds", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -57,6 +58,11 @@ namespace VehicleSimulationInterface
             DA.GetDataList(0, Numbers);
             double num = 0;
             DA.GetData(1, ref num);
+
+            double time = 0;
+            DA.GetData(2, ref time);
+      
+
             CalculationEngine ce = new CalculationEngine();
             ce.InitialList = Numbers;
             ce.Addition = num;

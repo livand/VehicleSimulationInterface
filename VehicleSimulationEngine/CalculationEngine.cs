@@ -12,7 +12,7 @@ namespace VehicleSimulationEngine
             results = new List<double>();
         }
 
-        private List<double> initialList;
+        private List<double> initialList;   //WHY DO I CREATE A NEW LIST TWICE?!?!?!?!?!?!?!?! See here and above
         private double addition;
         private List<double> results;
 
