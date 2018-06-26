@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace VehicleSimulationEngine
 {
-    class Vector
+    public class Vector
     {
-        public double X { get; private set; }
-        public double Y { get; private set; }
-        public double Z { get; private set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
 
         public Vector()
         {
