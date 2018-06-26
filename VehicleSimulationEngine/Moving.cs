@@ -47,11 +47,7 @@ namespace VehicleSimulationEngine
         //Check breaking foreach vehicle
 
         public void CheckForBreak() //Do I even need this here? NextSpeed is in vehicle, and already contains the speeding up / speeding down
-        {
-            nextSpeed = NextSpeed(1);
-           
-            veh.Accelerate(Math.Min(nextSpeed,speedLimit));             
-
+        {               
             //if bbMargin intersect traffic light //NO!! change the speed for the road point closest to the traffic light!! or?!?!?!
             if (amberRed || red)  
             {
@@ -59,17 +55,6 @@ namespace VehicleSimulationEngine
             }
            
 
-        }
-
-        public bool accBool;
-        public double accFactor;
-        public void CheckForAcc()
-        {
-            if (speedLimit > currentSpeed && speedLimit < maxSpeed && breakFactor >= 0)
-            {
-                accFactor = (nextSpeed - currentSpeed) / safetyMargin;
-            }
-                    
         }
 
 

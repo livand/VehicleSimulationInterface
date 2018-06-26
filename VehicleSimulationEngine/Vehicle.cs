@@ -23,7 +23,7 @@ namespace VehicleSimulationEngine
         private double maxSpeed;
         private double currentSpeed; // neeeded here?
         private double safetyMargin; //how far ahead from stopMargin it will look for obstacles (seconds) //Number of seconds of safety
-        private int stopMargin; //how much distance it will leave to objects ahead (meters / points?) //See above
+        private double stopMargin; //how much distance it will leave to objects ahead (meters / points?) //See above
 
         private double timeStep;
 
@@ -41,12 +41,32 @@ namespace VehicleSimulationEngine
         private List<Point> boundingPts = new List<Point>();
         private List<double> boundingSpeed = new List<double>();
 
-
-        int safetyCount;
-        public int SafetyCount()
+        private int CalculateSafetyMargin() //Calculate the safety margin in points (int) from the number of seconds of safety margin and the current speed
         {
+            int safety = 0;
+            double result = currentSpeed * safetyMargin; //s=v*t
+
+            int ptDist = 1; //Obtain from engine later
+            safety = Convert.ToInt32(Math.Ceiling(result / ptDist));
+
+            return safety;
+        }
+
+        private int CalculateStopMargin() //Calculate the safety margin in points (int) from the number of seconds of safety margin and the current speed
+        {
+            int stop = 0;
+            int ptDist = 1; //Obtain from engine later
+            double result = stopMargin + length; //assign apropriate car lenght from centerpoint to front of car
+            stop = Convert.ToInt32(Math.Ceiling(result / ptDist));
+
+            return stop;
+        }
+
+        public int SafetyCount()
+        {            
             int safety = CalculateSafetyMargin();
-            safetyCount = (((currentIndex + safety) < roadPts.Count) ? (currentIndex + safety) : roadPts.Count);
+            int stop = CalculateStopMargin();
+            int safetyCount = (((currentIndex + safety + stop) < roadPts.Count) ? (currentIndex + safety + stop) : roadPts.Count);
             return safetyCount;
         }
         //construct obstacle bounding box depending on speed, stopMargin & safetyMargin
@@ -76,10 +96,10 @@ namespace VehicleSimulationEngine
         {
             int ptDist = 1; //Obtain from engine later
             double breakDist = 0;
-            double nextSpeed = (currentSpeed < roadSpeed[currentIndex] ? roadSpeed[currentIndex] : currentSpeed);
+            double nextSpeed = Math.Min((currentSpeed < roadSpeed[currentIndex] ? roadSpeed[currentIndex] : currentSpeed), maxSpeed); //Smallest value of speed limit / max speed
             for (int i = 0; i < boundingSpeed.Count; i++)
             {                
-                if (nextSpeed > boundingSpeed[i])
+                if (nextSpeed > boundingSpeed[i]) //if speedLimit ahead is smaller than nextSpeed, set the lower limit
                 {
                     nextSpeed = boundingSpeed[i];
                     breakDist = i * ptDist;
@@ -89,33 +109,22 @@ namespace VehicleSimulationEngine
         }
             
 
-        private int CalculateSafetyMargin()
-        {
-            //Calculate the safety margin in points (int) from the number of seconds of safety margin and the current speed
-            int safety = 0;
 
-            double result = currentSpeed * safetyMargin; //s=v*t
 
-            int ptDist = 1; //Obtain from engine later
-            safety = Convert.ToInt32(Math.Ceiling(result / ptDist));
-
-            return safety;
-        }
-
+        bool absoluteStop;//insert booleans from traffic lights / obstacles
         public void Accelerate(double nextSpeed, double breakDist) //GET NEXT SPEED IN HERE
         {
             double a = ((nextSpeed * nextSpeed) - (currentSpeed * currentSpeed)) / (2 * breakDist);             // a=(v1*v1-v2*v2) / (2*s)
             double aSpeed = 0; //calculate acceleration reference: if you have to accelerate harder than this; use standard acceleration
-            double aBreak = 0; //calculate acceleration reference: if you have to break harder than this; don't brake
-            if (a >= aSpeed)
-                accFactor = aSpeed;
-            else if (a <= aBreak)
+            double aBrake = 0; //calculate acceleration reference: if you have to break harder than this; don't brake
+            double aMaxBrake = 0;
+            if (a >= 0)
+                accFactor = Math.Min(a, aSpeed);
+            else if (a <= aBrake && absoluteStop == false)
                 accFactor = 0;
-            else
-                accFactor = a;
-
+            else if (a < 0)
+                accFactor = Math.Max(a, aMaxBrake);
         }    
-
 
         public void Update(double timeStep)
         {
