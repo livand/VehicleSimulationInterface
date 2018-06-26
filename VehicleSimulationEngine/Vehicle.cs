@@ -32,13 +32,23 @@ namespace VehicleSimulationEngine
         private double length;
         private double frontToAx; //Distance between front axel and front of vehicle
         private double backToAx; //Distance between rear axel and back of vehicle
-        private Point vehPosition = new Point(0,0,0); //Centre point of the vehicle on the road
+        private Point vehPosition = new Point(0, 0, 0); //Centre point of the vehicle on the road
         private double distanceTravelled;
         private double accFactor;
 
         private List<Point> roadPts = new List<Point>();
+        private List<double> roadSpeed = new List<double>();
         private List<Point> boundingPts = new List<Point>();
+        private List<double> boundingSpeed = new List<double>();
 
+
+        int safetyCount;
+        public int SafetyCount()
+        {
+            int safety = CalculateSafetyMargin();
+            safetyCount = (((currentIndex + safety) < roadPts.Count) ? (currentIndex + safety) : roadPts.Count);
+            return safetyCount;
+        }
         //construct obstacle bounding box depending on speed, stopMargin & safetyMargin
         public void BoundingPolygon()
         {
@@ -49,23 +59,35 @@ namespace VehicleSimulationEngine
 
             //Calculate the current position of the front of the car from the vector from the current centre point to the next road point in the direction of travel
             //From the basePt (front of vehicle) add the safety margin
-            int safety = CalculateSafetyMargin();
             Point nextPt = ((currentIndex + 1) < roadPts.Count ? roadPts[currentIndex + 1] : roadPts[currentIndex]); //DEFINE ELSE-POINT IF NO POINTS AHEAD
             Vector direction = Point.Subtract(nextPt, roadPts[currentIndex]);
             
 
             //Add the safety margin to the index of the current base point
             //The resulting point at that index is the furtherest point from the car within the safety region - giving the bounding box
-            int safetyCount = (((currentIndex + safety) < roadPts.Count) ? (currentIndex + safety) : roadPts.Count);
 
-            for (int i = currentIndex; i < safetyCount; i++)
+            for (int i = currentIndex; i < SafetyCount(); i++)
             {
                 boundingPts.Add(roadPts[i]);
-            }
-            
-
-
+                boundingSpeed.Add(roadSpeed[i]);
+            }           
         }
+        public Tuple<double,double> NextSpeed()
+        {
+            int ptDist = 1; //Obtain from engine later
+            double breakDist = 0;
+            double nextSpeed = (currentSpeed < roadSpeed[currentIndex] ? roadSpeed[currentIndex] : currentSpeed);
+            for (int i = 0; i < boundingSpeed.Count; i++)
+            {                
+                if (nextSpeed > boundingSpeed[i])
+                {
+                    nextSpeed = boundingSpeed[i];
+                    breakDist = i * ptDist;
+                }
+            }
+            return Tuple.Create(nextSpeed, breakDist);            
+        }
+            
 
         private int CalculateSafetyMargin()
         {
@@ -74,27 +96,25 @@ namespace VehicleSimulationEngine
 
             double result = currentSpeed * safetyMargin; //s=v*t
 
-            //To-DO - obtain point distance from global engine
-            int ptDistance = 1; //Obtain from engine later
-            safety = Convert.ToInt32(Math.Ceiling(result / ptDistance));
+            int ptDist = 1; //Obtain from engine later
+            safety = Convert.ToInt32(Math.Ceiling(result / ptDist));
 
             return safety;
         }
 
-        public void Accelerate(double target)
+        public void Accelerate(double nextSpeed, double breakDist) //GET NEXT SPEED IN HERE
         {
-            accFactor = (target-currentSpeed) / safetyMargin;
-        }
-
-        public void AccelerateIn(double target, double distance)
-        {
-            double a = ((target * target) - (currentSpeed * currentSpeed)) / (2 * distance);
-            double a2 = (target - currentSpeed / (safetyMargin-timeStep));
-            if(a <= a2) //if you have to break harder than your safetyMargin allows, don't break
-            {
+            double a = ((nextSpeed * nextSpeed) - (currentSpeed * currentSpeed)) / (2 * breakDist);             // a=(v1*v1-v2*v2) / (2*s)
+            double aSpeed = 0; //calculate acceleration reference: if you have to accelerate harder than this; use standard acceleration
+            double aBreak = 0; //calculate acceleration reference: if you have to break harder than this; don't brake
+            if (a >= aSpeed)
+                accFactor = aSpeed;
+            else if (a <= aBreak)
+                accFactor = 0;
+            else
                 accFactor = a;
-            }
-        }        
+
+        }    
 
 
         public void Update(double timeStep)
