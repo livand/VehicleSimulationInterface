@@ -25,5 +25,17 @@ namespace VehicleSimulationEngine
             Y = y;
             Z = z;
         }
+
+        public static Vector Subtract(Point pt, Point pt2)
+        {
+            Vector v = new Vector
+            {
+                X = (pt.X - pt2.X),
+                Y = (pt.Y - pt2.Y),
+                Z = (pt.Z - pt2.Z)
+            };
+
+            return v;
+        }
     }
 }
