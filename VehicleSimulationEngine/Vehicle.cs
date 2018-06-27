@@ -107,8 +107,7 @@ namespace VehicleSimulationEngine
             }
             return Tuple.Create(nextSpeed, breakDist);            
         }
-            
-
+               
 
 
         bool absoluteStop;//insert booleans from traffic lights / obstacles
@@ -120,7 +119,7 @@ namespace VehicleSimulationEngine
             double aMaxBrake = 0;
             if (a >= 0)
                 accFactor = Math.Min(a, aSpeed);
-            else if (a <= aBrake && absoluteStop == false)
+            else if (a <= aBrake && absoluteStop == false)      //set red to absoluteStop = true; amberRed to absoluteStop = false;
                 accFactor = 0;
             else if (a < 0)
                 accFactor = Math.Max(a, aMaxBrake);

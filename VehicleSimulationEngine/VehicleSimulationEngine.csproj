@@ -41,10 +41,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CalculationEngine.cs" />
+    <Compile Include="Distribution.cs" />
     <Compile Include="Moving.cs" />
     <Compile Include="MovingComponent.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Road.cs" />
+    <Compile Include="RoadSegment.cs" />
     <Compile Include="Speed.cs" />
     <Compile Include="TrafficLights.cs" />
     <Compile Include="Vector.cs" />
