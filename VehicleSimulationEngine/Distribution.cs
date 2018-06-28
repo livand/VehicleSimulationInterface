@@ -8,22 +8,14 @@ namespace VehicleSimulationEngine
 {
     class Distribution
     {
-        //TO IMPORT
-        List<string> carTypes;
-        List<double> percentageDistribution;
-        int nrOfCars;
+        
+        private Dictionary<string, double> vehicleDistribution = new Dictionary<string, double>(); //IMPORT (name, percentage)
 
-        public void CarsPerRoad()
+        public void VehiclesPerRoad(int totNrOfVeh)
         {
-            List<double> distribution = new List<double>();
-            foreach (double d in percentageDistribution)
-            {
-                distribution.Add(Math.Round((d/100) * nrOfCars));
-            }
-            
-            //depending on vehicle types
-            //depending on amount of roads
-            //depending on distribution settings
+            //if keys match, multiply percentage double with nrOfVeh
+            int nrOfVeh = Convert.ToInt32(Math.Ceiling(totNrOfVeh * ));
+
         }
     }
 }

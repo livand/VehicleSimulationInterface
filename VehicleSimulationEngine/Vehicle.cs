@@ -23,14 +23,16 @@ namespace VehicleSimulationEngine
         private double maxSpeed;
         private double currentSpeed; // neeeded here?
         private double safetyMargin; //how far ahead from stopMargin it will look for obstacles (seconds) //Number of seconds of safety
-        private double stopMargin; //how much distance it will leave to objects ahead (meters / points?) //See above
+        private double stopMargin; //how much distance it will leave to objects ahead (meters / points?) //ax from Francis formula
+        private double bx_add = 0.2;
+        private double bx_mul = 0.3;
+
 
         private double timeStep;
 
         //Import vehicle geometry from input
         private double width;
         private double length;
-        private double frontToAx; //Distance between front axel and front of vehicle
         private double backToAx; //Distance between rear axel and back of vehicle
         private Point vehPosition = new Point(0, 0, 0); //Centre point of the vehicle on the road
         private double distanceTravelled;
@@ -41,50 +43,52 @@ namespace VehicleSimulationEngine
         private List<Point> boundingPts = new List<Point>();
         private List<double> boundingSpeed = new List<double>();
 
+        private double CalculateRandom()
+        {
+            Random rnd = new Random();
+            double z = rnd.NextDouble(); //give range to z [0,1.0] mean 0.5, sd 0.15
+            return z;
+        }
+
+        private int CalculateStopMargin() //Calculate the stop margin in points (int) from the number of seconds of safety margin and the current speed
+        {
+            int stop = 0;
+            int ptDist = 1; //Obtain from engine later
+            double result = stopMargin + length - backToAx; //assign apropriate car lenght: right now, centerPt of back axis
+            stop = Convert.ToInt32(Math.Ceiling(result / ptDist));
+
+            return stop;
+        }
+
         private int CalculateSafetyMargin() //Calculate the safety margin in points (int) from the number of seconds of safety margin and the current speed
         {
             int safety = 0;
-            double result = currentSpeed * safetyMargin; //s=v*t
+            double result = CalculateStopMargin() + (bx_add + bx_mul * CalculateRandom()) * Math.Sqrt(currentSpeed);   
 
             int ptDist = 1; //Obtain from engine later
             safety = Convert.ToInt32(Math.Ceiling(result / ptDist));
 
             return safety;
         }
-
-        private int CalculateStopMargin() //Calculate the safety margin in points (int) from the number of seconds of safety margin and the current speed
-        {
-            int stop = 0;
-            int ptDist = 1; //Obtain from engine later
-            double result = stopMargin + length; //assign apropriate car lenght from centerpoint to front of car
-            stop = Convert.ToInt32(Math.Ceiling(result / ptDist));
-
-            return stop;
-        }
-
+        
         public int SafetyCount()
         {            
             int safety = CalculateSafetyMargin();
             int stop = CalculateStopMargin();
-            int safetyCount = (((currentIndex + safety + stop) < roadPts.Count) ? (currentIndex + safety + stop) : roadPts.Count);
+            int safetyCount = (((currentIndex + safety) < roadPts.Count) ? (currentIndex + safety) : roadPts.Count);
             return safetyCount;
         }
-        //construct obstacle bounding box depending on speed, stopMargin & safetyMargin
+        public Point NextPoint()
+        {
+            Point nextPt = ((currentIndex + 1) < roadPts.Count ? roadPts[currentIndex + 1] : roadPts[currentIndex]); //DEFINE ELSE-POINT IF NO POINTS AHEAD
+            return nextPt;
+        }
+
         public void BoundingPolygon()
         {
             boundingPts.Clear();
-
-            //Create the bounding polygon based on the vehicle size and length of its stop margin
-            Point basePt = new Point();
-
-            //Calculate the current position of the front of the car from the vector from the current centre point to the next road point in the direction of travel
-            //From the basePt (front of vehicle) add the safety margin
-            Point nextPt = ((currentIndex + 1) < roadPts.Count ? roadPts[currentIndex + 1] : roadPts[currentIndex]); //DEFINE ELSE-POINT IF NO POINTS AHEAD
-            Vector direction = Point.Subtract(nextPt, roadPts[currentIndex]);
-            
-
-            //Add the safety margin to the index of the current base point
-            //The resulting point at that index is the furtherest point from the car within the safety region - giving the bounding box
+            Point basePt = new Point();            
+            Vector direction = Point.Subtract(NextPoint(), roadPts[currentIndex]);           
 
             for (int i = currentIndex; i < SafetyCount(); i++)
             {
