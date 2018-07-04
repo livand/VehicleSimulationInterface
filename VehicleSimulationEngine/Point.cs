@@ -37,5 +37,15 @@ namespace VehicleSimulationEngine
 
             return v;
         }
+
+        public double DistanceTo(Point pt)
+        {
+            double xDist = Math.Abs(X - pt.X);
+            double yDist = Math.Abs(Y - pt.Y);
+            double zDist = Math.Abs(X - pt.Z);
+
+            return Math.Sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
+        }
+
     }
 }

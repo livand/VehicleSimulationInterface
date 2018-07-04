@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace VehicleSimulationEngine
 {
-    class TrafficLights
+    public class TrafficLights
     {
+        public enum TrafficLight { tOff = 0, tRed, tAmberRed, tGreen, tAmberGreen };
+        private TrafficLight currentLight = TrafficLight.tOff;
+        public TrafficLight CurrentLightDisplayed { get { return currentLight; } }
         //assign trafficLight to roadPt      
+        private Point tLightLocation;
+        public Point TrafficLightLocation { get { return tLightLocation; } set { tLightLocation = value; } }
 
         //import
         public double currentTime;
@@ -21,15 +26,19 @@ namespace VehicleSimulationEngine
         private Dictionary<String, double> cycleDurations = new Dictionary<string, double>();
 
         // create booleans
-        public bool green;
+        /*public bool green;
         public bool amberRed;
         public bool red;
-        public bool amberGreen;
+        public bool amberGreen;*/
 
         //calculate
         private double lastChangeTimeStep = 0;
 
-        public TrafficLights(bool red = true, bool amberGreen = false, bool green = false, bool amberRed = false)
+        private Guid id;
+        public Guid TrafficLightID { get { return id; } }
+
+        //public TrafficLights(bool red = true, bool amberGreen = false, bool green = false, bool amberRed = false)
+        public TrafficLights(TrafficLight currentLight)
         {
             cycleDurations = new Dictionary<string, double>();
             cycleDurations.Add("Red", 30);
@@ -37,10 +46,14 @@ namespace VehicleSimulationEngine
             cycleDurations.Add("Green", 30);
             cycleDurations.Add("AmberRed", 0);
 
-            this.red = red;
+            this.currentLight = currentLight;
+
+            id = Guid.NewGuid();
+
+            /*this.red = red;
             this.amberGreen = amberGreen;
             this.green = green;
-            this.amberRed = amberRed;
+            this.amberRed = amberRed;*/
 
             currentCycleDuration = cycleDurations["Red"];
         }
@@ -50,28 +63,32 @@ namespace VehicleSimulationEngine
             if((currentTimeStep - lastChangeTimeStep) > currentCycleDuration)
             {
                 //Time to change the light
-                if(red)
+                if(currentLight == TrafficLight.tRed)
                 {
-                    red = false;
-                    amberGreen = true;
+                    //red = false;
+                    //amberGreen = true;
+                    currentLight = TrafficLight.tAmberGreen;
                     currentCycleDuration = cycleDurations["AmberGreen"];
                 }
-                else if (amberGreen)
+                else if (currentLight == TrafficLight.tAmberGreen)
                 {
-                    amberGreen = false;
-                    green = true;
+                    //amberGreen = false;
+                    //green = true;
+                    currentLight = TrafficLight.tGreen;
                     currentCycleDuration = cycleDurations["Green"];
                 }
-                else if (green)
+                else if (currentLight == TrafficLight.tGreen)
                 {
-                    green = false;
-                    amberRed = true;
+                    //green = false;
+                    //amberRed = true;
+                    currentLight = TrafficLight.tAmberRed;
                     currentCycleDuration = cycleDurations["AmberRed"];
                 }
-                else if (amberRed)
+                else if (currentLight == TrafficLight.tAmberRed)
                 {
-                    amberRed = false;
-                    red = true;
+                    //amberRed = false;
+                    //red = true;
+                    currentLight = TrafficLight.tRed;
                     currentCycleDuration = cycleDurations["Red"];
                 }
 
@@ -83,7 +100,7 @@ namespace VehicleSimulationEngine
         public void tlPosition()
         {
             //List all the points connected to a traffic light            
-        }
+        }       
                
     }
 }

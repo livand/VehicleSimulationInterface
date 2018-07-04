@@ -17,12 +17,27 @@ namespace VehicleSimulationEngine
 
         //Type name, example: Toyota
         private string vehicleName;
+        double[] vehicleInfo;
+
+        public double[] SetVehicleInfo() //take inputs from interface and put here!
+        {
+            vehicleInfo[0] = length;
+            vehicleInfo[1] = width;
+            vehicleInfo[2] = frontToAx;
+            vehicleInfo[3] = backToAx;
+            vehicleInfo[4] = stopMargin;
+            vehicleInfo[5] = maxSpeed;
+            vehicleInfo[6] = maxAcc;
+            vehicleInfo[7] = maxBrake;
+
+            return vehicleInfo;
+        }
+
         private int currentIndex;
 
         //Import maxSpeed from input + speedLimit from Road
         private double maxSpeed;
         private double currentSpeed; // neeeded here?
-        private double safetyMargin; //how far ahead from stopMargin it will look for obstacles (seconds) //Number of seconds of safety
         private double stopMargin; //how much distance it will leave to objects ahead (meters / points?) //ax from Francis formula
         private double bx_add = 0.2;
         private double bx_mul = 0.3;
@@ -30,9 +45,10 @@ namespace VehicleSimulationEngine
 
         private double timeStep;
 
-        //Import vehicle geometry from input
+        //Import vehicle geometry from input (array?)
         private double width;
         private double length;
+        private double frontToAx;
         private double backToAx; //Distance between rear axel and back of vehicle
         private Point vehPosition = new Point(0, 0, 0); //Centre point of the vehicle on the road
         private double distanceTravelled;
@@ -50,22 +66,21 @@ namespace VehicleSimulationEngine
             return z;
         }
 
-        private int CalculateStopMargin() //Calculate the stop margin in points (int) from the number of seconds of safety margin and the current speed
+        private int CalculateStopMargin()
         {
             int stop = 0;
             int ptDist = 1; //Obtain from engine later
-            double result = stopMargin + length - backToAx; //assign apropriate car lenght: right now, centerPt of back axis
+            double result = stopMargin + length - backToAx; //right now, centerPt of back axis as output
             stop = Convert.ToInt32(Math.Ceiling(result / ptDist));
 
             return stop;
         }
 
-        private int CalculateSafetyMargin() //Calculate the safety margin in points (int) from the number of seconds of safety margin and the current speed
+        private int CalculateSafetyMargin()
         {
             int safety = 0;
-            double result = CalculateStopMargin() + (bx_add + bx_mul * CalculateRandom()) * Math.Sqrt(currentSpeed);   
-
             int ptDist = 1; //Obtain from engine later
+            double result = CalculateStopMargin() + (bx_add + bx_mul * CalculateRandom()) * Math.Sqrt(currentSpeed);               
             safety = Convert.ToInt32(Math.Ceiling(result / ptDist));
 
             return safety;
@@ -78,6 +93,7 @@ namespace VehicleSimulationEngine
             int safetyCount = (((currentIndex + safety) < roadPts.Count) ? (currentIndex + safety) : roadPts.Count);
             return safetyCount;
         }
+
         public Point NextPoint()
         {
             Point nextPt = ((currentIndex + 1) < roadPts.Count ? roadPts[currentIndex + 1] : roadPts[currentIndex]); //DEFINE ELSE-POINT IF NO POINTS AHEAD
@@ -88,14 +104,20 @@ namespace VehicleSimulationEngine
         {
             boundingPts.Clear();
             Point basePt = new Point();            
-            Vector direction = Point.Subtract(NextPoint(), roadPts[currentIndex]);           
-
+                       
             for (int i = currentIndex; i < SafetyCount(); i++)
             {
                 boundingPts.Add(roadPts[i]);
                 boundingSpeed.Add(roadSpeed[i]);
             }           
         }
+        public void VehicleAngle()
+        {
+            Vector zeroVec = new Vector(1,0,0);        //as defined in SmartMove
+            Vector direction = Point.Subtract(NextPoint(), roadPts[currentIndex]);
+            double angleBetween = Vector.AngleBetween(zeroVec,direction); //Set AngleBetween in Vector class        
+        }
+  
         public Tuple<double,double> NextSpeed()
         {
             int ptDist = 1; //Obtain from engine later
@@ -110,9 +132,7 @@ namespace VehicleSimulationEngine
                 }
             }
             return Tuple.Create(nextSpeed, breakDist);            
-        }
-               
-
+        }               
 
         bool absoluteStop;//insert booleans from traffic lights / obstacles
         public void Accelerate(double nextSpeed, double breakDist) //GET NEXT SPEED IN HERE
@@ -120,7 +140,7 @@ namespace VehicleSimulationEngine
             double a = ((nextSpeed * nextSpeed) - (currentSpeed * currentSpeed)) / (2 * breakDist);             // a=(v1*v1-v2*v2) / (2*s)
             double aSpeed = 0; //calculate acceleration reference: if you have to accelerate harder than this; use standard acceleration
             double aBrake = 0; //calculate acceleration reference: if you have to break harder than this; don't brake
-            double aMaxBrake = 0;
+            double aMaxBrake = 0; //calculate the hardest acc a vehicle can have when braking
             if (a >= 0)
                 accFactor = Math.Min(a, aSpeed);
             else if (a <= aBrake && absoluteStop == false)      //set red to absoluteStop = true; amberRed to absoluteStop = false;
@@ -132,8 +152,9 @@ namespace VehicleSimulationEngine
         public void Update(double timeStep)
         {
             double distance = currentSpeed * timeStep + 0.5 * accFactor * timeStep * timeStep;    // s = v1*t + (1/2)*a*t*t
-            distanceTravelled += Math.Min(distance, maxSpeed*timeStep);
             currentSpeed = distance / timeStep;
+            int ptDist = 1; //Obtain from engine later
+            currentIndex = Convert.ToInt32(Math.Ceiling(currentIndex + distance / ptDist)); 
         }
     }
 }

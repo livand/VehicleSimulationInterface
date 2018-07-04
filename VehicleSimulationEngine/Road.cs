@@ -6,20 +6,29 @@ using System.Threading.Tasks;
 
 namespace VehicleSimulationEngine
 {
-    class Road
+    public class Road
     {
-        List<int> segmentID = new List<int>();
+        private Guid id;
+        public Guid RoadID { get { return id; } }
 
-        //private Dictionary<Point, double> roadProperties = new Dictionary<Point, double>();
-        private List<RoadSegment> roadProperties = new List<RoadSegment>();
-        public void AddRoadAssembly(List<RoadSegment> segments)
+        List<RoadSegment> roadSegments;
+        
+        public Road()
         {
-            foreach (RoadSegment rs in segments)
-                if (!roadProperties.Contains(rs))
-                    roadProperties.Add(rs);
+            roadSegments = new List<RoadSegment>();
+            id = Guid.NewGuid();
         }
 
-                        
+        public void AddRoadSegment(RoadSegment rs)
+        {
+            if (!ContainsRoadSegment(rs))
+                roadSegments.Add(rs);
+        }
+
+        public bool ContainsRoadSegment(RoadSegment rs)
+        {
+            return roadSegments.Where(x => x.RoadSegmentID == rs.RoadSegmentID).FirstOrDefault() != null;
+        }
 
     }
 }

@@ -6,52 +6,95 @@ using System.Threading.Tasks;
 
 namespace VehicleSimulationEngine
 {
-    class RoadSegment
+    public class RoadSegment
     {
-        private Dictionary<Point, double> roadSegments = new Dictionary<Point, double>();
-        public Dictionary<Point, double> RoadSegments { get { return roadSegments; } }
+        private Guid id;
+        public Guid RoadSegmentID { get { return id; } } //Future work - allow Guid to be set from the Rhino data/incoming data so allow ID to be set externally
 
-        //Import all points for segment
-        //Apply speed to all point
+        private List<TrafficLights> trafficLights;
+
+        private Dictionary<Point, double> originalRoadSegmentSpeeds;
+        private Dictionary<Point, double> roadSegmentPts;// = new Dictionary<Point, double>();
+        public Dictionary<Point, double> RoadSegments { get { return roadSegmentPts; } }
+
+        public RoadSegment()
+        {
+            trafficLights = new List<TrafficLights>();
+            roadSegmentPts = new Dictionary<Point, double>();
+            originalRoadSegmentSpeeds = new Dictionary<Point, double>();
+
+            id = Guid.NewGuid();
+        }
+
+        public void AddTrafficLight(TrafficLights tLight)
+        {
+            //Only add a traffic light if it was not already associated to this road segment
+            //if (trafficLights.Where(x => x.TrafficLightID == tLight.TrafficLightID).FirstOrDefault() == null)
+            if(!HasTrafficLight(tLight))
+                trafficLights.Add(tLight);
+            //Using a lambada LINQ query to assign each value in the list to the variable of x (x =>)
+            /*
+             *  The non LINQ equivilant = 
+             *  bool inList = false;
+             *  foreach(TrafficLights tl in trafficLights)
+             *  {
+             *      if(tl.TrafficLightID == tLight.TrafficLightID)
+             *      {
+             *          inList = true;
+             *          break;
+             *      }
+             *  }
+             *  if(!inList)
+             *      trafficLights.Add(tLight);
+             * */
+        }
+
         public void ConstructSegment(double segmentSpeed, List<Point>segmentPts)
         {
             foreach (Point p in segmentPts)
             {
-                roadSegments.Add(p, segmentSpeed);
+                roadSegmentPts.Add(p, segmentSpeed);
+                originalRoadSegmentSpeeds.Add(p, segmentSpeed);
             }            
         }
 
-        public void tlPosition()
+        public bool HasTrafficLight(TrafficLights tLight)
         {
-            //use tlID
-            //find list with location points assigned to the tlID
-            //find closest point in tlID and closest point on road: where the traffic light properties should be inserted
-            // Point closestPt = tlPoint.DistanceTo(roadPt[0]);     //set first point
-            // loop through rest of the roadPts
-            // closestPt = (tlPoint.DistanceTo(roadPt[i])
+            //tLight = the Light to be checked
 
-            //in input: have road index defined 
-            //Connect traffic light to road
-        }
+            return trafficLights.Where(x => x.TrafficLightID == tLight.TrafficLightID).FirstOrDefault() != null;
 
-        public void hasTrafficLight()
-        {
+
             //find out if road contains traffic light (if traffic light is connected to road component)
             //1. Import list of tlID (as connected to the road)
             //2. Match tlID with properties from TrafficLight class (timings etc)
         }
 
-        public void updatePtSpeed(Point ptToSee)
+        public void UpdateSpeedBasedOnLight(TrafficLights tLight, double tolerance = 1.0) //Update to be the distance between points from the engine later
         {
-            //when traffic light is red or amberRed, apply speed 0 to point
-            //when traffic light is red, bool absolute stop = true;
-            //when traffic light is green or amberGreen, apply standard speed to point
-            RoadSegment segContainsPt = roadProperties.Where(x => x.RoadSegments.ContainsKey(ptToSee)).FirstOrDefault();
+            //Find the closest road point of the segment to the given traffic light
+            Point tLoc = tLight.TrafficLightLocation;
+            double dist = 1e10;
+            Point foundP = null;
 
-            if (segContainsPt != null)
+            foreach(Point p in roadSegmentPts.Keys)
             {
-                //Do some stuff to calculate the speed of the road approaching
+                double distToPt = p.DistanceTo(tLoc);
+                if(distToPt < dist && distToPt <= tolerance)
+                {
+                    dist = p.DistanceTo(tLoc);
+                    foundP = p;
+                }
             }
-        }
+
+            if(foundP != null)
+            {
+                //We have a point for this tLight - update its speed based on its current light
+                if (tLight.CurrentLightDisplayed == TrafficLights.TrafficLight.tRed || tLight.CurrentLightDisplayed == TrafficLights.TrafficLight.tAmberRed)
+                    roadSegmentPts[foundP] = 0;
+                else if (tLight.CurrentLightDisplayed == TrafficLights.TrafficLight.tGreen || tLight.CurrentLightDisplayed == TrafficLights.TrafficLight.tAmberGreen)
+                    roadSegmentPts[foundP] = originalRoadSegmentSpeeds[foundP]; //Reset speed to original value
+            }
+        }       
     }
 }
