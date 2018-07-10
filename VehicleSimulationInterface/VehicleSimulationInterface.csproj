@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SMARTGrasshopperCustomInterface">
+      <HintPath>Dependencies\SMARTGrasshopperCustomInterface.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -61,8 +64,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\RoadProperiesInfo.cs" />
-    <Compile Include="Components\RoadPropertiesComponent.cs" />
+    <Compile Include="Components\AssembleComponent.cs" />
+    <Compile Include="Components\LaunchComponent.cs" />
+    <Compile Include="Components\ProfileComponent.cs" />
+    <Compile Include="Components\DistributionComponent.cs" />
+    <Compile Include="Components\Profile.cs" />
+    <Compile Include="Components\SegmentComponent.cs" />
+    <Compile Include="Components\TrafficLightComponent.cs" />
     <Compile Include="VehicleSimulationInterfaceComponent.cs" />
     <Compile Include="VehicleSimulationInterfaceInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -16,7 +16,7 @@ namespace VehicleSimulationEngine
         public Point TrafficLightLocation { get { return tLightLocation; } set { tLightLocation = value; } }
 
         //import
-        public double currentTime;
+        public double currentTime; //get globally
         public double iterations;
 
         private double cycleDuration;
@@ -25,19 +25,12 @@ namespace VehicleSimulationEngine
 
         private Dictionary<String, double> cycleDurations = new Dictionary<string, double>();
 
-        // create booleans
-        /*public bool green;
-        public bool amberRed;
-        public bool red;
-        public bool amberGreen;*/
-
         //calculate
         private double lastChangeTimeStep = 0;
 
         private Guid id;
         public Guid TrafficLightID { get { return id; } }
 
-        //public TrafficLights(bool red = true, bool amberGreen = false, bool green = false, bool amberRed = false)
         public TrafficLights(TrafficLight currentLight)
         {
             cycleDurations = new Dictionary<string, double>();
@@ -50,11 +43,6 @@ namespace VehicleSimulationEngine
 
             id = Guid.NewGuid();
 
-            /*this.red = red;
-            this.amberGreen = amberGreen;
-            this.green = green;
-            this.amberRed = amberRed;*/
-
             currentCycleDuration = cycleDurations["Red"];
         }
 
@@ -65,36 +53,26 @@ namespace VehicleSimulationEngine
                 //Time to change the light
                 if(currentLight == TrafficLight.tRed)
                 {
-                    //red = false;
-                    //amberGreen = true;
                     currentLight = TrafficLight.tAmberGreen;
                     currentCycleDuration = cycleDurations["AmberGreen"];
                 }
                 else if (currentLight == TrafficLight.tAmberGreen)
                 {
-                    //amberGreen = false;
-                    //green = true;
                     currentLight = TrafficLight.tGreen;
                     currentCycleDuration = cycleDurations["Green"];
                 }
                 else if (currentLight == TrafficLight.tGreen)
                 {
-                    //green = false;
-                    //amberRed = true;
                     currentLight = TrafficLight.tAmberRed;
                     currentCycleDuration = cycleDurations["AmberRed"];
                 }
                 else if (currentLight == TrafficLight.tAmberRed)
                 {
-                    //amberRed = false;
-                    //red = true;
                     currentLight = TrafficLight.tRed;
                     currentCycleDuration = cycleDurations["Red"];
                 }
-
                 lastChangeTimeStep = currentTimeStep;
             }
-
         }
 
         public void tlPosition()

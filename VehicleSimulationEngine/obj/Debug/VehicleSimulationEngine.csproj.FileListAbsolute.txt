@@ -3,4 +3,3 @@ C:\Users\landerss\source\repos\VehicleSimulationInterface\VehicleSimulationEngin
 C:\Users\landerss\source\repos\VehicleSimulationInterface\VehicleSimulationEngine\obj\Debug\VehicleSimulationEngine.csproj.CoreCompileInputs.cache
 C:\Users\landerss\source\repos\VehicleSimulationInterface\VehicleSimulationEngine\obj\Debug\VehicleSimulationEngine.dll
 C:\Users\landerss\source\repos\VehicleSimulationInterface\VehicleSimulationEngine\obj\Debug\VehicleSimulationEngine.pdb
-C:\Users\landerss\source\repos\VehicleSimulationInterface\VehicleSimulationEngine\obj\Debug\VehicleSimulationEngine.csprojResolveAssemblyReference.cache

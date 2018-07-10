@@ -27,8 +27,8 @@ namespace VehicleSimulationEngine
             vehicleInfo[3] = backToAx;
             vehicleInfo[4] = stopMargin;
             vehicleInfo[5] = maxSpeed;
-            vehicleInfo[6] = maxAcc;
-            vehicleInfo[7] = maxBrake;
+            //vehicleInfo[6] = maxAcc;
+            //vehicleInfo[7] = maxBrake;
 
             return vehicleInfo;
         }
@@ -38,7 +38,7 @@ namespace VehicleSimulationEngine
         //Import maxSpeed from input + speedLimit from Road
         private double maxSpeed;
         private double currentSpeed; // neeeded here?
-        private double stopMargin; //how much distance it will leave to objects ahead (meters / points?) //ax from Francis formula
+        
         private double bx_add = 0.2;
         private double bx_mul = 0.3;
 
@@ -50,6 +50,8 @@ namespace VehicleSimulationEngine
         private double length;
         private double frontToAx;
         private double backToAx; //Distance between rear axel and back of vehicle
+        private double stopMargin; //how much distance it will leave to objects ahead (meters / points?) //ax from Francis formula
+
         private Point vehPosition = new Point(0, 0, 0); //Centre point of the vehicle on the road
         private double distanceTravelled;
         private double accFactor;
@@ -138,8 +140,8 @@ namespace VehicleSimulationEngine
         public void Accelerate(double nextSpeed, double breakDist) //GET NEXT SPEED IN HERE
         {
             double a = ((nextSpeed * nextSpeed) - (currentSpeed * currentSpeed)) / (2 * breakDist);             // a=(v1*v1-v2*v2) / (2*s)
-            double aSpeed = 0; //calculate acceleration reference: if you have to accelerate harder than this; use standard acceleration
-            double aBrake = 0; //calculate acceleration reference: if you have to break harder than this; don't brake
+            double aSpeed = 0; //set acceleration reference: if you have to accelerate harder than this; use standard acceleration
+            double aBrake = 0; //set acceleration reference: if you have to brake harder than this; don't brake
             double aMaxBrake = 0; //calculate the hardest acc a vehicle can have when braking
             if (a >= 0)
                 accFactor = Math.Min(a, aSpeed);
